@@ -1,0 +1,44 @@
+package ru.sapteh.model;
+
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import lombok.*;
+
+import javax.persistence.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.file.Path;
+
+@Entity@NoArgsConstructor@RequiredArgsConstructor@Setter@Getter
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    @NonNull
+    @Column(name = "Title")
+    private String title;@Column(name = "Cost")@NonNull
+    private Double cost;@Column(name = "Description")
+    private String description;@Column(name = "MainImagePath")@NonNull
+    private String mainImagePath;@Column(name = "IsActive")@NonNull
+    private Boolean isActive;
+    @Transient
+    private ImageView mainImage;
+
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "ManufacturerID")
+    @NonNull
+    private Manufacturer manufacturerId;
+
+    public ImageView getMainImage() throws FileNotFoundException {
+        InputStream inputStream = new FileInputStream("C:\\JavaProjects\\EngliSheSkuul\\src\\main\\resources\\"+mainImagePath);
+        ImageView image = new ImageView(new Image(inputStream));
+        image.setFitHeight(75);
+        image.setFitWidth(50);
+        image.setOnMouseEntered(mouseEvent -> {
+            image.setFitHeight(750);
+            image.setFitWidth(500);});
+        return image;
+    }
+
+}
