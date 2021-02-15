@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -99,7 +100,8 @@ public class MainWindowController {
             stage.setTitle("Edit Window");
             assert root != null;
             stage.setScene(new Scene(root));
-            stage.show();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
         });
         createButton.setOnAction(actionEvent -> {
             Stage stage = new Stage();
@@ -112,7 +114,8 @@ public class MainWindowController {
             stage.setTitle("Edit Window");
             assert root != null;
             stage.setScene(new Scene(root));
-            stage.show();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
         });
 
     }

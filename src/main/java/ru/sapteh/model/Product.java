@@ -35,7 +35,7 @@ public class Product {
         ImageView image = new ImageView(new Image(inputStream));
         image.setFitHeight(75);
         image.setFitWidth(50);
-        image.setOnMouseEntered(mouseEvent -> {
+        image.setOnMouseClicked(mouseEvent -> {
             image.setFitHeight(750);
             image.setFitWidth(500);});
         return image;
