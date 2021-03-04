@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Set;
 
 @Entity@NoArgsConstructor@RequiredArgsConstructor@Setter@Getter
 public class Product {
@@ -24,11 +25,13 @@ public class Product {
     private Boolean isActive;
     @Transient
     private ImageView mainImage;
-
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ManufacturerID")
     @NonNull
     private Manufacturer manufacturerId;
+
+    @OneToMany( mappedBy = "productId",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<Productsale> productsales;
 
     public ImageView getMainImage() throws FileNotFoundException {
         InputStream inputStream = new FileInputStream("C:\\JavaProjects\\EngliSheSkuul\\src\\main\\resources\\"+mainImagePath);

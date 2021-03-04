@@ -21,7 +21,7 @@ public class Manufacturer {
     @NonNull
     @Column(name = "StartDate")
     private Date startDate;
-    @OneToMany(mappedBy = "manufacturerId",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "manufacturerId",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Product> products;
     @Override
     public String toString(){

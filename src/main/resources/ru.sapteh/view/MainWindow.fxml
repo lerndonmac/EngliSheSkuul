@@ -20,9 +20,9 @@
       <Button fx:id="createButton" layoutX="1139.0" layoutY="126.0" mnemonicParsing="false" text="Create" />
       <Text layoutX="621.0" layoutY="718.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Поиск" />
       <Text layoutX="695.0" layoutY="748.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Сортировка по Производителю" wrappingWidth="207.13671875" />
-      <ScrollPane layoutY="3.0" prefHeight="677.0" prefWidth="1000.0">
+      <ScrollPane layoutY="3.0" prefHeight="677.0" prefWidth="1050.0">
          <content>
-            <FlowPane fx:id="flowPane" maxHeight="1.7976931348623157E308" prefHeight="677.0" prefWidth="1000.0" />
+            <FlowPane fx:id="flowPane" maxHeight="1.7976931348623157E308" prefHeight="677.0" prefWidth="1050.0" />
          </content>
       </ScrollPane>
       <AnchorPane layoutX="1000.0" layoutY="283.0" prefHeight="200.0" prefWidth="200.0">

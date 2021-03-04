@@ -1,24 +1,21 @@
 package ru.sapteh.controls;
 
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import ru.sapteh.DAO.DAO;
@@ -27,8 +24,8 @@ import ru.sapteh.DAO.service.ProductService;
 import ru.sapteh.model.Manufacturer;
 import ru.sapteh.model.Product;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.io.*;
+import java.util.Locale;
 
 public class MainWindowController {
     private static SessionFactory factory;
@@ -44,12 +41,16 @@ public class MainWindowController {
     @FXML
     private FlowPane flowPane;
 
+    private Product choosenProduct;
+
 
 
 
 
     @FXML
     public void initialize() throws FileNotFoundException {
+        manufacturerObservableList.clear();
+        productObservableList.clear();
         Manufacturer manufacturer = new Manufacturer();
         manufacturer.setName("All");
         manufacturerObservableList.add(manufacturer);
@@ -79,13 +80,24 @@ public class MainWindowController {
             }
             CountOfRows.setText(String.valueOf(products.size()));
         });
-        serchProductTxt.setOnKeyPressed(actionEvent -> {
+        serchProductTxt.setOnKeyReleased(actionEvent -> {
             ObservableList<Product> products = FXCollections.observableArrayList();
-            for (int i = 0; i < productObservableList.size()-1 ; i++) {
-                Product p = productObservableList.get(i);
-                if (p.getTitle().contains(serchProductTxt.getText())){
-                    products.add(p);
-                }
+            products.clear();
+           for (Product p:productObservableList){
+
+                   if (p.getTitle().toLowerCase(Locale.ROOT).contains(serchProductTxt.getText().toLowerCase(Locale.ROOT))){
+                       products.add(p);
+                   }
+               }
+            try {
+            if (!serchProductTxt.getText().equals("")) {
+                initProducts(products);
+            }
+            else {
+                initProducts(productObservableList);
+            }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             }
             CountOfRows.setText(String.valueOf(products.size()));
         });
@@ -93,7 +105,9 @@ public class MainWindowController {
 
 
         updateButton.setOnAction(actionEvent -> {
+            ProductEditWindowController.product = choosenProduct;
             Stage stage = new Stage();
+            stage.getIcons().add(new Image("/school_logo.png"));
             Parent root = null;
             try {
                 root = FXMLLoader.load(getClass().getResource("/ru.sapteh/view/EditProductWindow.fxml"));
@@ -108,6 +122,7 @@ public class MainWindowController {
         });
         createButton.setOnAction(actionEvent -> {
             Stage stage = new Stage();
+            stage.getIcons().add(new Image("/school_logo.png"));
             Parent root = null;
             try {
                 root = FXMLLoader.load(getClass().getResource("/ru.sapteh/view/CreateProductWindow.fxml"));
@@ -120,20 +135,30 @@ public class MainWindowController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
         });
+        deleteButton.setOnAction(actionEvent -> {
+            factory = new Configuration().configure().buildSessionFactory();
+            DAO<Product, Integer> productDAO = new ProductService(factory);
+            productDAO.delete(choosenProduct);
+
+            try {
+                initialize();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
 
 
     }
     public void initProducts(ObservableList<Product> products) throws FileNotFoundException {
-
         flowPane.getChildren().clear();
+        flowPane.setVgap(20);
+        flowPane.setHgap(5);
         for (Product product : products){
+            AnchorPane pane = new AnchorPane();
             Label nameLable = new Label();
-           Label costLable = new Label();
-
+            Label costLable = new Label();
             ImageView imageView = new ImageView();
-
-           AnchorPane pane = new AnchorPane();
-           Label activeLable = new Label();
+            Label activeLable = new Label();
 
             nameLable.setText(product.getTitle());
             nameLable.setLayoutY(300);
@@ -157,8 +182,10 @@ public class MainWindowController {
             imageView.setFitWidth(200);
             imageView.setFitHeight(300);
 
-
             pane.setPrefWidth(200);
+            pane.setOnMouseClicked(mouseEvent -> {
+                choosenProduct = product;
+            });
             pane.getChildren().add(imageView);
             pane.getChildren().add(nameLable);
             pane.getChildren().add(costLable);

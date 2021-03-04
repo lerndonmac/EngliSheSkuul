@@ -16,7 +16,7 @@ public class Productsale {
     private int id;@NonNull
     @Column(name = "SaleDate")
     private Date saleDate;
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ProductId")
     private Product productId;@NonNull
     @Column(name = "Quantity")
