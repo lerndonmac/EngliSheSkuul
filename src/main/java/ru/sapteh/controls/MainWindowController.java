@@ -45,62 +45,37 @@ public class MainWindowController {
     private FlowPane flowPane;
 
 
+
+
+
     @FXML
     public void initialize() throws FileNotFoundException {
         Manufacturer manufacturer = new Manufacturer();
         manufacturer.setName("All");
         manufacturerObservableList.add(manufacturer);
+        productSortByManufactorCombo.setValue(manufacturerObservableList.get(0));
         initDateBaseProduct();
         initDataBaseManufacture();
-        for (Product product : productObservableList){
-            Label nameLable = new Label();
-            Label costLable = new Label();
+        initProducts(productObservableList);
 
-            ImageView imageView = new ImageView();
-
-            AnchorPane pane = new AnchorPane();
-
-            nameLable.setText(product.getTitle());
-            nameLable.setLayoutY(300);
-            nameLable.setMaxWidth(200);
-
-            costLable.setText("Цена: "+product.getCost());
-            costLable.setLayoutY(320);
-            costLable.setMaxWidth(200);
-
-            pane.setPrefHeight(340);
-            if (!product.getIsActive()) {
-                pane.setPrefHeight(360);
-                Label activeLable = new Label();
-                pane.getChildren().add(activeLable);
-                activeLable.setText("Нет в наличии");
-                activeLable.setTextFill(Color.RED);
-                activeLable.setLayoutY(340);
-                activeLable.setMaxWidth(200);
-            }
-
-            imageView.setImage(product.getMainImage().getImage());
-            imageView.setFitWidth(200);
-            imageView.setFitHeight(300);
-
-
-            pane.setPrefWidth(200);
-            pane.getChildren().add(imageView);
-            pane.getChildren().add(nameLable);
-            pane.getChildren().add(costLable);
-
-            flowPane.getChildren().add(pane);
-
-        }
 
         productSortByManufactorCombo.setItems(manufacturerObservableList);
         productSortByManufactorCombo.setOnAction(actionEvent -> {
             ObservableList<Product> products = FXCollections.observableArrayList();
-            for (int i = 0; i < productObservableList.size()-1 ; i++) {
-                Product p = productObservableList.get(i);
-                if (p.getManufacturerId().equals(productSortByManufactorCombo.getValue())){
-                    products.add(p);
+            for (Product p:productObservableList){
+                if (productSortByManufactorCombo.getValue().equals(manufacturer)){
+                    products = productObservableList;
+                }else {
+                    if (p.getManufacturerId().equals(productSortByManufactorCombo.getValue())) {
+                        products.add(p);
+                    }
                 }
+            }
+
+            try {
+                initProducts(products);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             }
             CountOfRows.setText(String.valueOf(products.size()));
         });
@@ -146,6 +121,49 @@ public class MainWindowController {
             stage.showAndWait();
         });
 
+
+    }
+    public void initProducts(ObservableList<Product> products) throws FileNotFoundException {
+
+        flowPane.getChildren().clear();
+        for (Product product : products){
+            Label nameLable = new Label();
+           Label costLable = new Label();
+
+            ImageView imageView = new ImageView();
+
+           AnchorPane pane = new AnchorPane();
+           Label activeLable = new Label();
+
+            nameLable.setText(product.getTitle());
+            nameLable.setLayoutY(300);
+            nameLable.setMaxWidth(200);
+
+            costLable.setText("Цена: "+product.getCost());
+            costLable.setLayoutY(320);
+            costLable.setMaxWidth(200);
+
+            pane.setPrefHeight(340);
+            if (!product.getIsActive()) {
+                pane.setPrefHeight(360);
+                pane.getChildren().add(activeLable);
+                activeLable.setText("Не активен");
+                activeLable.setTextFill(Color.RED);
+                activeLable.setLayoutY(340);
+                activeLable.setMaxWidth(200);
+            }
+
+            imageView.setImage(product.getMainImage().getImage());
+            imageView.setFitWidth(200);
+            imageView.setFitHeight(300);
+
+
+            pane.setPrefWidth(200);
+            pane.getChildren().add(imageView);
+            pane.getChildren().add(nameLable);
+            pane.getChildren().add(costLable);
+            flowPane.getChildren().add(pane);
+        }
     }
     public static void initDateBaseProduct(){
         factory = new Configuration().configure().buildSessionFactory();
@@ -157,9 +175,9 @@ public class MainWindowController {
         factory = new Configuration().configure().buildSessionFactory();
         DAO<Manufacturer, Integer> manufacturerDAO = new ManufactureService(factory);
         for (int i = 0; i <productObservableList.size()-1 ; i++) {
-            if (manufacturerObservableList.contains(productObservableList.get(i).getManufacturerId())) {
+            if (!manufacturerObservableList.contains(productObservableList.get(i).getManufacturerId())) {
+                manufacturerObservableList.add(productObservableList.get(i).getManufacturerId());
             }
-            else {manufacturerObservableList.add(productObservableList.get(i).getManufacturerId());}
         }
         factory.close();
     }
