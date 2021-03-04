@@ -1,11 +1,9 @@
 package ru.sapteh.controls;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -25,7 +23,9 @@ import ru.sapteh.model.Manufacturer;
 import ru.sapteh.model.Product;
 
 import java.io.*;
+import java.util.Comparator;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainWindowController {
     private static SessionFactory factory;
@@ -39,6 +39,10 @@ public class MainWindowController {
     private final static ObservableList<Product> productObservableList = FXCollections.observableArrayList();
     private final static ObservableList<Manufacturer> manufacturerObservableList = FXCollections.observableArrayList();
     @FXML
+    private Button costSortButt;
+    @FXML
+   private Button salesButt;
+    @FXML
     private FlowPane flowPane;
 
     private Product choosenProduct;
@@ -49,6 +53,8 @@ public class MainWindowController {
 
     @FXML
     public void initialize() throws FileNotFoundException {
+        AtomicBoolean sorted = new AtomicBoolean(false);
+
         manufacturerObservableList.clear();
         productObservableList.clear();
         Manufacturer manufacturer = new Manufacturer();
@@ -146,6 +152,43 @@ public class MainWindowController {
                 e.printStackTrace();
             }
         });
+        costSortButt.setOnAction(actionEvent -> {
+            if (!sorted.get()){
+              productObservableList.sort(Comparator.comparing(Product::getCost));
+                try {
+                    initProducts(productObservableList);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                sorted.set(true);
+            }else {
+                    productObservableList.sort((x, y)-> -Double.compare(x.getCost(),y.getCost()));
+                try {
+                    initProducts(productObservableList);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                sorted.set(false);
+
+            }
+        });
+        salesButt.setOnAction(actionEvent -> {
+            SalesWindowContrlos.product = choosenProduct;
+            Stage stage = new Stage();
+            stage.getIcons().add(new Image("/school_logo.png"));
+            Parent root = null;
+            try {
+                root = FXMLLoader.load(getClass().getResource("/ru.sapteh/view/SalesWindow.fxml"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            stage.setTitle("Sales Window");
+            assert root != null;
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+
+        });
 
 
     }
@@ -174,8 +217,11 @@ public class MainWindowController {
                 pane.getChildren().add(activeLable);
                 activeLable.setText("Не активен");
                 activeLable.setTextFill(Color.RED);
+                pane.setStyle("-fx-background-color: gray");
                 activeLable.setLayoutY(340);
                 activeLable.setMaxWidth(200);
+                deleteButton.setOnAction(actionEvent -> {
+                });
             }
 
             imageView.setImage(product.getMainImage().getImage());

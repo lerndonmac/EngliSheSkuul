@@ -30,5 +30,7 @@
             <Label layoutX="22.0" layoutY="14.0" text="Label" AnchorPane.bottomAnchor="0.0" />
          </children>
       </AnchorPane>
+      <Button fx:id="costSortButt" layoutX="1050.0" layoutY="14.0" mnemonicParsing="false" text="Cost Sort" />
+      <Button fx:id="salesButt" layoutX="1138.0" layoutY="217.0" mnemonicParsing="false" text="Sales" />
    </children>
 </Pane>
