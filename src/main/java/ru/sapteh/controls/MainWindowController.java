@@ -17,99 +17,92 @@ import javafx.stage.Stage;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import ru.sapteh.DAO.DAO;
-import ru.sapteh.DAO.service.ManufactureService;
 import ru.sapteh.DAO.service.ProductService;
 import ru.sapteh.model.Manufacturer;
 import ru.sapteh.model.Product;
-
 import java.io.*;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainWindowController {
-    private static SessionFactory factory;
-    //product
+    //fields from view
     public TextField serchProductTxt;@FXML
-    public ChoiceBox<Manufacturer> productSortByManufactorCombo;@FXML
-    public Label CountOfRows;@FXML
-    public Button updateButton;@FXML
-    public Button deleteButton;@FXML
-    public Button createButton;
-    private final static ObservableList<Product> productObservableList = FXCollections.observableArrayList();
-    private final static ObservableList<Manufacturer> manufacturerObservableList = FXCollections.observableArrayList();
-    @FXML
-    private Button costSortButt;
-    @FXML
-   private Button salesButt;
-    @FXML
+    private ChoiceBox<Manufacturer> productSortByManufactorCombo;@FXML
+    private Label CountOfRows;@FXML
+    private Button updateButton;@FXML
+    private Button deleteButton;@FXML
+    private Button createButton;@FXML
+    private Button costSortButt;@FXML
+    private Button salesButt;@FXML
     private FlowPane flowPane;
-
+    //non-fxml fields
+    private static SessionFactory factory;
+    private static ObservableList<Product> productObservableList = FXCollections.observableArrayList();
+    private final static ObservableList<Manufacturer> manufacturerObservableList = FXCollections.observableArrayList();
     private Product choosenProduct;
-
-
-
-
-
+    private static final AtomicBoolean sorted = new AtomicBoolean(false);
     @FXML
     public void initialize() throws FileNotFoundException {
-        AtomicBoolean sorted = new AtomicBoolean(false);
-
         manufacturerObservableList.clear();
         productObservableList.clear();
-        Manufacturer manufacturer = new Manufacturer();
-        manufacturer.setName("All");
-        manufacturerObservableList.add(manufacturer);
-        productSortByManufactorCombo.setValue(manufacturerObservableList.get(0));
         initDateBaseProduct();
         initDataBaseManufacture();
         initProducts(productObservableList);
-
-
         productSortByManufactorCombo.setItems(manufacturerObservableList);
+        CountOfRows.setText(String.valueOf(productObservableList.size()));
+        initButtons();
+    }
+    //initialize buttons logic
+    public void initButtons(){
+        serchProductTxt.setOnKeyReleased(actionEvent -> {
+            ObservableList<Product> products = FXCollections.observableArrayList();
+            products.clear();
+            for (Product p:productObservableList){
+                if (p.getTitle().toLowerCase(Locale.ROOT).contains(serchProductTxt.getText().toLowerCase(Locale.ROOT))){
+                    products.add(p);
+                }
+            }
+            try {
+                if (!serchProductTxt.getText().equals("")) {
+                    initProducts(products);
+                }
+                else {
+                    initProducts(productObservableList);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            CountOfRows.setText(String.valueOf(products.size()));
+        });
+        Manufacturer manufacturer = new Manufacturer();
+        manufacturer.setName("All");
+        manufacturerObservableList.add(manufacturer);
+        productSortByManufactorCombo.setValue(manufacturer);
+
         productSortByManufactorCombo.setOnAction(actionEvent -> {
+            productObservableList.clear();
+            initDateBaseProduct();
             ObservableList<Product> products = FXCollections.observableArrayList();
             for (Product p:productObservableList){
                 if (productSortByManufactorCombo.getValue().equals(manufacturer)){
+
                     products = productObservableList;
                 }else {
+
                     if (p.getManufacturerId().equals(productSortByManufactorCombo.getValue())) {
                         products.add(p);
                     }
                 }
             }
-
+            productObservableList = products;
             try {
-                initProducts(products);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            CountOfRows.setText(String.valueOf(products.size()));
-        });
-        serchProductTxt.setOnKeyReleased(actionEvent -> {
-            ObservableList<Product> products = FXCollections.observableArrayList();
-            products.clear();
-           for (Product p:productObservableList){
-
-                   if (p.getTitle().toLowerCase(Locale.ROOT).contains(serchProductTxt.getText().toLowerCase(Locale.ROOT))){
-                       products.add(p);
-                   }
-               }
-            try {
-            if (!serchProductTxt.getText().equals("")) {
-                initProducts(products);
-            }
-            else {
                 initProducts(productObservableList);
-            }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
             CountOfRows.setText(String.valueOf(products.size()));
         });
-        CountOfRows.setText(String.valueOf(productObservableList.size()));
-
-
         updateButton.setOnAction(actionEvent -> {
             ProductEditWindowController.product = choosenProduct;
             Stage stage = new Stage();
@@ -154,7 +147,7 @@ public class MainWindowController {
         });
         costSortButt.setOnAction(actionEvent -> {
             if (!sorted.get()){
-              productObservableList.sort(Comparator.comparing(Product::getCost));
+                productObservableList.sort(Comparator.comparing(Product::getCost));
                 try {
                     initProducts(productObservableList);
                 } catch (FileNotFoundException e) {
@@ -162,7 +155,7 @@ public class MainWindowController {
                 }
                 sorted.set(true);
             }else {
-                    productObservableList.sort((x, y)-> -Double.compare(x.getCost(),y.getCost()));
+                productObservableList.sort((x, y)-> -Double.compare(x.getCost(),y.getCost()));
                 try {
                     initProducts(productObservableList);
                 } catch (FileNotFoundException e) {
@@ -189,9 +182,8 @@ public class MainWindowController {
             stage.showAndWait();
 
         });
-
-
     }
+    //создание плиток на основе листа
     public void initProducts(ObservableList<Product> products) throws FileNotFoundException {
         flowPane.getChildren().clear();
         flowPane.setVgap(20);
@@ -229,15 +221,14 @@ public class MainWindowController {
             imageView.setFitHeight(300);
 
             pane.setPrefWidth(200);
-            pane.setOnMouseClicked(mouseEvent -> {
-                choosenProduct = product;
-            });
+            pane.setOnMouseClicked(mouseEvent -> choosenProduct = product);
             pane.getChildren().add(imageView);
             pane.getChildren().add(nameLable);
             pane.getChildren().add(costLable);
             flowPane.getChildren().add(pane);
         }
     }
+    //filling lists by objects from database
     public static void initDateBaseProduct(){
         factory = new Configuration().configure().buildSessionFactory();
         DAO<Product,Integer> productDAO = new ProductService(factory);
@@ -246,7 +237,6 @@ public class MainWindowController {
     }
     public static void initDataBaseManufacture(){
         factory = new Configuration().configure().buildSessionFactory();
-        DAO<Manufacturer, Integer> manufacturerDAO = new ManufactureService(factory);
         for (int i = 0; i <productObservableList.size()-1 ; i++) {
             if (!manufacturerObservableList.contains(productObservableList.get(i).getManufacturerId())) {
                 manufacturerObservableList.add(productObservableList.get(i).getManufacturerId());
