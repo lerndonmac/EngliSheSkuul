@@ -8,7 +8,6 @@ import javax.persistence.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.Set;
 
 @Entity@NoArgsConstructor@RequiredArgsConstructor@Setter@Getter
@@ -33,8 +32,8 @@ public class Product {
     @OneToMany( mappedBy = "productId",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Productsale> productsales;
 
-    public ImageView getMainImage() throws FileNotFoundException {
-        InputStream inputStream = new FileInputStream("C:\\JavaProjects\\EngliSheSkuul\\src\\main\\resources\\"+mainImagePath);
+    public ImageView getMainImage(){
+        InputStream inputStream = getClass().getResourceAsStream("/images/" +mainImagePath.substring(12));
         ImageView image = new ImageView(new Image(inputStream));
         image.setFitHeight(75);
         image.setFitWidth(50);
