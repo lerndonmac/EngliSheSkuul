@@ -11,6 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -27,7 +28,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainWindowController {
     //fields from view
-    public TextField serchProductTxt;@FXML
+    public TextField serchProductTxt;
+    public AnchorPane mainAnchor;
+    @FXML
     private ChoiceBox<Manufacturer> productSortByManufactorCombo;@FXML
     private Label CountOfRows;@FXML
     private Button updateButton;@FXML
@@ -35,7 +38,7 @@ public class MainWindowController {
     private Button createButton;@FXML
     private Button costSortButt;@FXML
     private Button salesButt;@FXML
-    private FlowPane flowPane;
+    private TilePane flowPane;
     //non-fxml fields
     private static SessionFactory factory;
     private static ObservableList<Product> productObservableList = FXCollections.observableArrayList();
@@ -226,6 +229,11 @@ public class MainWindowController {
             pane.getChildren().add(nameLable);
             pane.getChildren().add(costLable);
             flowPane.getChildren().add(pane);
+            mainAnchor.widthProperty().addListener((obs,old,newp)->{
+                if (mainAnchor.getWidth() != 1200){
+                    flowPane.setPrefColumns((int) Math.ceil((mainAnchor.getWidth()-200)/200)-1);
+                }
+            });
         }
     }
     //filling lists by objects from database
