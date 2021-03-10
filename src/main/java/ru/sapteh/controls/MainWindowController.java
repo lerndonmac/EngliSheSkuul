@@ -10,7 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -21,10 +21,14 @@ import ru.sapteh.DAO.DAO;
 import ru.sapteh.DAO.service.ProductService;
 import ru.sapteh.model.Manufacturer;
 import ru.sapteh.model.Product;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseListener;
 import java.io.*;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainWindowController {
     //fields from view
@@ -207,6 +211,28 @@ public class MainWindowController {
             costLable.setMaxWidth(200);
 
             pane.setPrefHeight(340);
+
+
+            imageView.setImage(product.getMainImage().getImage());
+            imageView.setFitWidth(200);
+            imageView.setFitHeight(300);
+
+            pane.setPrefWidth(200);
+            pane.setOnMouseClicked(mouseEvent -> choosenProduct = product);
+            pane.getChildren().add(imageView);
+            pane.setOnMouseEntered(mouseEvent -> {
+                    Label desc = new Label();
+                    desc.setText(product.getTitle());// change to .getDescription if your
+                    desc.setWrapText(true);
+                    desc.setPrefWidth(200);
+                System.out.println(pane.getChildren().get(0));
+                    pane.getChildren().set(0,desc);
+            });
+            pane.setOnMouseExited(mouseEvent -> {
+                pane.getChildren().set(0,imageView);
+            });
+            pane.getChildren().add(nameLable);
+            pane.getChildren().add(costLable);
             if (!product.getIsActive()) {
                 pane.setPrefHeight(360);
                 pane.getChildren().add(activeLable);
@@ -218,22 +244,13 @@ public class MainWindowController {
                 deleteButton.setOnAction(actionEvent -> {
                 });
             }
-
-            imageView.setImage(product.getMainImage().getImage());
-            imageView.setFitWidth(200);
-            imageView.setFitHeight(300);
-
-            pane.setPrefWidth(200);
-            pane.setOnMouseClicked(mouseEvent -> choosenProduct = product);
-            pane.getChildren().add(imageView);
-            pane.getChildren().add(nameLable);
-            pane.getChildren().add(costLable);
             flowPane.getChildren().add(pane);
             mainAnchor.widthProperty().addListener((obs,old,newp)->{
                 if (mainAnchor.getWidth() != 1200){
                     flowPane.setPrefColumns((int) Math.ceil((mainAnchor.getWidth()-200)/200)-1);
                 }
             });
+
         }
     }
     //filling lists by objects from database
