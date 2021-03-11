@@ -9,7 +9,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
@@ -49,13 +51,32 @@ public class MainWindowController {
     private final static ObservableList<Manufacturer> manufacturerObservableList = FXCollections.observableArrayList();
     private Product choosenProduct;
     private static final AtomicBoolean sorted = new AtomicBoolean(false);
+    Pane pane;
+    private Procladka procladka;
     @FXML
-    public void initialize() throws FileNotFoundException {
+    public void initialize() throws IOException {
         manufacturerObservableList.clear();
         productObservableList.clear();
         initDateBaseProduct();
         initDataBaseManufacture();
-        initProducts(productObservableList);
+
+
+            Stage stage = new Stage();
+            stage.setTitle("Product info");
+            FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/ru.sapteh/view/ItemInfo.fxml"));
+            Pane anchorPane = loader1.load();
+            stage.setScene(new Scene(anchorPane));
+            ItemInfoController itemInfoController = loader1.getController();
+            procladka = new Procladka() {
+                @Override
+                public void onClickListener(Product product) {
+                    itemInfoController.setData(product);
+                        stage.show();
+                }
+            };
+
+
+        initProducts(productObservableList, procladka);
         productSortByManufactorCombo.setItems(manufacturerObservableList);
         CountOfRows.setText(String.valueOf(productObservableList.size()));
         initButtons();
@@ -72,12 +93,14 @@ public class MainWindowController {
             }
             try {
                 if (!serchProductTxt.getText().equals("")) {
-                    initProducts(products);
+                    initProducts(products, procladka);
                 }
                 else {
-                    initProducts(productObservableList);
+                    initProducts(productObservableList, procladka);
                 }
             } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             CountOfRows.setText(String.valueOf(products.size()));
@@ -104,27 +127,13 @@ public class MainWindowController {
             }
             productObservableList = products;
             try {
-                initProducts(productObservableList);
+                initProducts(productObservableList, procladka);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-            }
-            CountOfRows.setText(String.valueOf(products.size()));
-        });
-        updateButton.setOnAction(actionEvent -> {
-            ProductEditWindowController.product = choosenProduct;
-            Stage stage = new Stage();
-            stage.getIcons().add(new Image("/school_logo.png"));
-            Parent root = null;
-            try {
-                root = FXMLLoader.load(getClass().getResource("/ru.sapteh/view/EditProductWindow.fxml"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            stage.setTitle("Edit Window");
-            assert root != null;
-            stage.setScene(new Scene(root));
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
+            CountOfRows.setText(String.valueOf(products.size()));
         });
         createButton.setOnAction(actionEvent -> {
             Stage stage = new Stage();
@@ -141,31 +150,24 @@ public class MainWindowController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
         });
-        deleteButton.setOnAction(actionEvent -> {
-            factory = new Configuration().configure().buildSessionFactory();
-            DAO<Product, Integer> productDAO = new ProductService(factory);
-            productDAO.delete(choosenProduct);
-
-            try {
-                initialize();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        });
         costSortButt.setOnAction(actionEvent -> {
             if (!sorted.get()){
                 productObservableList.sort(Comparator.comparing(Product::getCost));
                 try {
-                    initProducts(productObservableList);
+                    initProducts(productObservableList, procladka);
                 } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
                 sorted.set(true);
             }else {
                 productObservableList.sort((x, y)-> -Double.compare(x.getCost(),y.getCost()));
                 try {
-                    initProducts(productObservableList);
+                    initProducts(productObservableList, procladka);
                 } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
                 sorted.set(false);
@@ -191,67 +193,18 @@ public class MainWindowController {
         });
     }
     //создание плиток на основе листа
-    public void initProducts(ObservableList<Product> products) throws FileNotFoundException {
+    public void initProducts(ObservableList<Product> products, Procladka procladka) throws IOException {
         flowPane.getChildren().clear();
         flowPane.setVgap(20);
         flowPane.setHgap(5);
-        for (Product product : products){
-            AnchorPane pane = new AnchorPane();
-            Label nameLable = new Label();
-            Label costLable = new Label();
-            ImageView imageView = new ImageView();
-            Label activeLable = new Label();
-
-            nameLable.setText(product.getTitle());
-            nameLable.setLayoutY(300);
-            nameLable.setMaxWidth(200);
-
-            costLable.setText("Цена: "+product.getCost());
-            costLable.setLayoutY(320);
-            costLable.setMaxWidth(200);
-
-            pane.setPrefHeight(340);
-
-
-            imageView.setImage(product.getMainImage().getImage());
-            imageView.setFitWidth(200);
-            imageView.setFitHeight(300);
-
-            pane.setPrefWidth(200);
-            pane.setOnMouseClicked(mouseEvent -> choosenProduct = product);
-            pane.getChildren().add(imageView);
-            pane.setOnMouseEntered(mouseEvent -> {
-                    Label desc = new Label();
-                    desc.setText(product.getTitle());// change to .getDescription if your
-                    desc.setWrapText(true);
-                    desc.setPrefWidth(200);
-                System.out.println(pane.getChildren().get(0));
-                    pane.getChildren().set(0,desc);
-            });
-            pane.setOnMouseExited(mouseEvent -> {
-                pane.getChildren().set(0,imageView);
-            });
-            pane.getChildren().add(nameLable);
-            pane.getChildren().add(costLable);
-            if (!product.getIsActive()) {
-                pane.setPrefHeight(360);
-                pane.getChildren().add(activeLable);
-                activeLable.setText("Не активен");
-                activeLable.setTextFill(Color.RED);
-                pane.setStyle("-fx-background-color: gray");
-                activeLable.setLayoutY(340);
-                activeLable.setMaxWidth(200);
-                deleteButton.setOnAction(actionEvent -> {
-                });
-            }
+        for (Product p : products){
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ru.sapteh/view/Tile.fxml"));
+            pane = loader.load();
+            TileController tileController = loader.getController();
+            tileController.setData(p, procladka);
             flowPane.getChildren().add(pane);
-            mainAnchor.widthProperty().addListener((obs,old,newp)->{
-                if (mainAnchor.getWidth() != 1200){
-                    flowPane.setPrefColumns((int) Math.ceil((mainAnchor.getWidth()-200)/200)-1);
-                }
-            });
-
         }
+
     }
     //filling lists by objects from database
     public static void initDateBaseProduct(){
