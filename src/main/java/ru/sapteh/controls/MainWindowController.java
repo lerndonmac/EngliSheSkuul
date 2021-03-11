@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MainWindowController {
     //fields from view
     public TextField serchProductTxt;
-    public AnchorPane mainAnchor;
+    public ScrollPane mainAnchor;
     @FXML
     private ChoiceBox<Manufacturer> productSortByManufactorCombo;@FXML
     private Label CountOfRows;@FXML
@@ -59,23 +59,17 @@ public class MainWindowController {
         productObservableList.clear();
         initDateBaseProduct();
         initDataBaseManufacture();
-
-
-            Stage stage = new Stage();
-            stage.setTitle("Product info");
-            FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/ru.sapteh/view/ItemInfo.fxml"));
-            Pane anchorPane = loader1.load();
-            stage.setScene(new Scene(anchorPane));
-            ItemInfoController itemInfoController = loader1.getController();
-            procladka = new Procladka() {
-                @Override
-                public void onClickListener(Product product) {
-                    itemInfoController.setData(product);
-                        stage.show();
-                }
-            };
-
-
+        Stage stage = new Stage();
+        stage.setTitle("Product info");
+        FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/ru.sapteh/view/ItemInfo.fxml"));
+        Pane anchorPane = loader1.load();
+        stage.setScene(new Scene(anchorPane));
+        stage.setAlwaysOnTop(true);
+        ItemInfoController itemInfoController = loader1.getController();
+        procladka = product -> {
+            itemInfoController.setData(product);
+            stage.show();
+        };
         initProducts(productObservableList, procladka);
         productSortByManufactorCombo.setItems(manufacturerObservableList);
         CountOfRows.setText(String.valueOf(productObservableList.size()));
@@ -98,8 +92,6 @@ public class MainWindowController {
                 else {
                     initProducts(productObservableList, procladka);
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -128,8 +120,6 @@ public class MainWindowController {
             productObservableList = products;
             try {
                 initProducts(productObservableList, procladka);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -155,8 +145,6 @@ public class MainWindowController {
                 productObservableList.sort(Comparator.comparing(Product::getCost));
                 try {
                     initProducts(productObservableList, procladka);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -165,8 +153,6 @@ public class MainWindowController {
                 productObservableList.sort((x, y)-> -Double.compare(x.getCost(),y.getCost()));
                 try {
                     initProducts(productObservableList, procladka);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -194,9 +180,15 @@ public class MainWindowController {
     }
     //создание плиток на основе листа
     public void initProducts(ObservableList<Product> products, Procladka procladka) throws IOException {
+        mainAnchor.widthProperty().addListener((observableValue, number, t1) -> {
+            flowPane.setPrefWidth(t1.doubleValue());
+            if (t1.doubleValue() == 1720){
+                flowPane.setHgap(15);
+            }
+            else flowPane.setHgap(0);
+        });
         flowPane.getChildren().clear();
         flowPane.setVgap(20);
-        flowPane.setHgap(5);
         for (Product p : products){
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ru.sapteh/view/Tile.fxml"));
             pane = loader.load();
