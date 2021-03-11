@@ -39,11 +39,8 @@ public class MainWindowController {
     @FXML
     private ChoiceBox<Manufacturer> productSortByManufactorCombo;@FXML
     private Label CountOfRows;@FXML
-    private Button updateButton;@FXML
-    private Button deleteButton;@FXML
     private Button createButton;@FXML
     private Button costSortButt;@FXML
-    private Button salesButt;@FXML
     private TilePane flowPane;
     //non-fxml fields
     private static SessionFactory factory;
@@ -159,23 +156,6 @@ public class MainWindowController {
                 sorted.set(false);
 
             }
-        });
-        salesButt.setOnAction(actionEvent -> {
-            SalesWindowContrlos.product = choosenProduct;
-            Stage stage = new Stage();
-            stage.getIcons().add(new Image("/school_logo.png"));
-            Parent root = null;
-            try {
-                root = FXMLLoader.load(getClass().getResource("/ru.sapteh/view/SalesWindow.fxml"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            stage.setTitle("Sales Window");
-            assert root != null;
-            stage.setScene(new Scene(root));
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
-
         });
     }
     //создание плиток на основе листа

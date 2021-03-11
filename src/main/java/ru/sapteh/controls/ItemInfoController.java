@@ -33,6 +33,9 @@ public class ItemInfoController {
     public Button updateButt;
     @FXML
     public Button delButt;
+    @FXML
+    private Button salesButt;
+
 
     private Product product;
 
@@ -44,6 +47,25 @@ public class ItemInfoController {
         tiltleTxt.setText(product.getTitle());
         descTxt.setText(product.getDescription());
         manoTxt.setText(product.getManufacturerId().getName());
+        salesButt.setOnAction(actionEvent -> {
+            SalesWindowContrlos.product = product;
+            Stage stage = new Stage();
+            stage.getIcons().add(new Image("/school_logo.png"));
+            Parent root = null;
+            try {
+                root = FXMLLoader.load(getClass().getResource("/ru.sapteh/view/SalesWindow.fxml"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            stage.setTitle("Sales Window");
+            assert root != null;
+            stage.setScene(new Scene(root));
+            stage.setAlwaysOnTop(true);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+
+        });
+
         updateButt.setOnAction(actionEvent -> {
             ProductEditWindowController.product = product;
             Stage stage = new Stage();
