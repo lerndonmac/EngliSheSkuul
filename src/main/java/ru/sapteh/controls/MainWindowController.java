@@ -52,10 +52,12 @@ public class MainWindowController {
     private Procladka procladka;
     @FXML
     public void initialize() throws IOException {
+
         manufacturerObservableList.clear();
         productObservableList.clear();
         initDateBaseProduct();
         initDataBaseManufacture();
+
         Stage stage = new Stage();
         stage.setTitle("Product info");
         FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/ru.sapteh/view/ItemInfo.fxml"));
@@ -67,6 +69,7 @@ public class MainWindowController {
             itemInfoController.setData(product);
             stage.show();
         };
+
         initProducts(productObservableList, procladka);
         productSortByManufactorCombo.setItems(manufacturerObservableList);
         CountOfRows.setText(String.valueOf(productObservableList.size()));
@@ -158,6 +161,7 @@ public class MainWindowController {
             }
         });
     }
+
     //создание плиток на основе листа
     public void initProducts(ObservableList<Product> products, Procladka procladka) throws IOException {
         mainAnchor.widthProperty().addListener((observableValue, number, t1) -> {
