@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import ru.sapteh.model.Product;
 
 public class TileController {
@@ -12,15 +13,12 @@ public class TileController {
     public Label titleTxt;    @FXML
     public Label costTxt;    @FXML
     public Label activeTxt;
+    public Pane click;
 
-    private Procladka procladka;
+    public Procladka procladka;
     private Product product;
+    public static Boolean chek = false;
 
-    @FXML
-    private void click(MouseEvent event){
-        ProductEditWindowController.product = product;
-        procladka.onClickListener(product);
-    }
 
     public void setData(Product p, Procladka procladka){
         this.procladka = procladka;
@@ -30,6 +28,13 @@ public class TileController {
         titleTxt.setWrapText(true);
         titleTxt.setText(product.getTitle());
         activeTxt.setText(!product.getIsActive()?"":"Не активен");
+        click.setOnMouseClicked(mouseEvent -> {
+            if (chek) {
+                ProductEditWindowController.product = product;
+                procladka.onClickListener(product);
+            }
+        });
+
 
     }
 }

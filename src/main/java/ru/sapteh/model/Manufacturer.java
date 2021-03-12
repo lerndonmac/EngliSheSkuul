@@ -12,6 +12,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Setter
 @Getter
+@Table(name = "manufacturer")
 public class Manufacturer {
     @Id@GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

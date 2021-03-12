@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.Set;
 
 @Entity@NoArgsConstructor@RequiredArgsConstructor@Setter@Getter
+@Table(name = "product")
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

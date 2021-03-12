@@ -10,6 +10,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Setter
 @Getter
+@Table(name = "productsale")
 public class Productsale {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
