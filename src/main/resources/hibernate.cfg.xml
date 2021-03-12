@@ -5,9 +5,9 @@
 <hibernate-configuration>
     <session-factory>
         <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
-        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/englishshcole?serverTimezone=UTC</property>
-        <property name="hibernate.connection.username">user</property>
-        <property name="hibernate.connection.password">1234</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/user_1?serverTimezone=UTC</property>
+        <property name="hibernate.connection.username">user_1</property>
+        <property name="hibernate.connection.password">Sapteh_user_1</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
         <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
         <property name="show_sql">false</property>
